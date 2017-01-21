@@ -21,8 +21,9 @@ function draw(){
   ctx.drawImage(bgImg,0,0);
   ctx.drawImage(enemyImg,enemy.x,enemy.y);
   ctx.drawImage(buttonImg,640-80,480-80,80,80);
-  ctx.drawImage(defenseImg,cursor.x,cursor.y);
-  
+  if(isBuilding == true){
+  	ctx.drawImage(defenseImg,cursor.x,cursor.y);
+  }
 }
 
 var enemy = {
@@ -36,6 +37,17 @@ var cursor = {
 }
 
 $("#game-canvas").on("mousemove", mousemove);
+$("#game-canvas").on("click", click);
+var isBuilding = false;
+
+function click(){
+	if (cursor.x >= (640-80) && cursor.y >= (480-80)){
+		isBuilding = true;
+	}else{
+		isBuilding = false;
+	}
+}
+
 function mousemove(event){
 	cursor.x = event.offsetX;
 	cursor.y = event.offsetY;
