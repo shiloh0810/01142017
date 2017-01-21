@@ -15,8 +15,13 @@ var ctx = canvas.getContext("2d");
 function draw(){
 	// 將背景圖片畫在 canvas 上的 (0,0) 位置
   ctx.drawImage(bgImg,0,0);
-  ctx.drawImage(enemyImg,0,0);
+  ctx.drawImage(enemyImg,enemy.x,enemy.y);
+}
+
+var enemy = {
+	x: 96,
+	y : 480 - 32,
 }
 
 // 執行 draw 函式
-setTimeout(draw, 1000);
+setInterval(draw, 16);
