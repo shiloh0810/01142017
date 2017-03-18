@@ -1,7 +1,9 @@
 var FPS = 60;
 var clock = 0;
-var hp = 100;
+var hp = 10;
 var con= true;
+var money = 15;
+var score = 0;
 // 創造 img HTML 元素，並放入變數中
 var bgImg = document.createElement("img");
 var slimeImg = document.createElement("img");
@@ -11,6 +13,7 @@ var rukiaImg = document.createElement("img");
 var buttonImg = document.createElement("img");
 var defenseImg = document.createElement("img");
 var crossImg = document.createElement("img");
+var overImg = document.createElement("img");
 
 // 設定這個元素的要顯示的圖片
 bgImg.src = "images/map.png";
@@ -21,6 +24,7 @@ rukiaImg.src = "images/rukia.gif";
 buttonImg.src = "images/tower-btn.png";
 defenseImg.src = "images/tower.png";
 crossImg.src = "images/crosshair.png";
+overImg.src = "images/game-over-png-20.png"
 
 // 找出網頁中的 canvas 元素
 var canvas = document.getElementById("game-canvas");
@@ -46,6 +50,8 @@ function draw(){
 	  	if(enemies[i].hp<=0)
 	  	{
 	  		enemies.splice(i, 1);
+	  		score += 10;
+	  		money += 10;
 	  	}
 	  	else
 	  	{
@@ -53,24 +59,30 @@ function draw(){
 	  		ctx.drawImage(pic[enemies[i].picture],enemies[i].x,enemies[i].y);
 	  	}
 	  }
-	  ctx.drawImage(buttonImg,640-80,480-80,80,80);
 	  if(isBuilding){
 
 	  	ctx.drawImage(defenseImg,cursor.x-cursor.x%32,cursor.y-cursor.y%32);
 
 	  }
-	  else
+	  for(var i=0; i<towers.length; i++)
 	  {
-	  	ctx.drawImage (defenseImg, tower.x, tower.y)
+	  	towers[i].searchEnemy();
+	  	ctx.drawImage (defenseImg, towers[i].x, towers[i].y)
+	  	if(towers[i].aimingEnemyId!=null){
+		  	var id = towers[i].aimingEnemyId;
+		  	ctx.drawImage (crossImg, enemies[id].x, enemies[id].y)
+		}
 	  }
 	  ctx.font="24px Arial";
 	  ctx.fillStyle="white";
 	  ctx.fillText("HP: "+hp, 10, 40);
-	  tower.searchEnemy();
-	  if(tower.aimingEnemyId!=null)
+	  ctx.fillText("Score: "+score, 10, 70);
+	  ctx.fillText("Money: "+money, 10, 100);
+	  ctx.drawImage(buttonImg,640-80,480-80,80,80);
+	  if(hp <= 0)
 	  {
-	  	var id = tower.aimingEnemyId;
-	  	ctx.drawImage (crossImg, enemies[id].x, enemies[id].y)
+	  	ctx.drawImage(overImg, 60, 60);
+	  	finish();
 	  }
   } 
 }
@@ -78,7 +90,6 @@ function draw(){
 $("body").on("keypress", pause);
 function pause(event)
 {
-	console.log(event.which)
 	if(event.which == 112)
 	{
 		if(con){
@@ -88,6 +99,11 @@ function pause(event)
 			con=true;
 		}
 	}
+}
+
+function finish()
+{
+	con=false;
 }
 
 var enemyPath=[
@@ -116,7 +132,7 @@ function Enemy(){
 	this.speedY = this.fast;
 	this.pathDes = 0;
 	this.picture = Math.floor((Math.random() * 4) + 0);
-	this.hp=10;
+	this.hp=15;
 	this.move = function(){
 		
 		if(isCollided(enemyPath[this.pathDes].x, enemyPath[this.pathDes].y,
@@ -163,25 +179,47 @@ var cursor = {
 	x: 0,
 	y : 0,
 }
-var tower = {
-	x: 0,
-	y: 0,
-	range: 96,
-	aimingEnemyId: null,
-	
-	searchEnemy: function(){
+
+function Tower(){
+	this.x = 0;
+	this.y = 0;
+	this.range = 96;
+	this.aimingEnemyId = null;
+	this.searchEnemy = function(){
+	this.readyToShootTime -= 1/FPS;
 	for(var i=0; i<enemies.length; i++){
 		var distance = Math.sqrt(Math.pow(this.x-enemies[i].x,2) + Math.pow(this.y-enemies[i].y,2));
 		if (distance<=this.range) {
 			this.aimingEnemyId = i;
+			if(this.readyToShootTime<=0)
+			{
+				this.shoot(i);
+				if(this.readyToShootTime <= -1)
+				{
+					this.readyToShootTime=this.fireRate;
+				}
+			}
 			return;
 		}
 	}
 	// 如果都沒找到，會進到這行，清除鎖定的目標
 	this.aimingEnemyId = null;
-	}
-	
+	};
+	this.shoot = function(id){
+		ctx.beginPath();
+		ctx.moveTo(this.x+10, this.y+20);
+		ctx.lineTo(enemies[id].x+10, enemies[id].y);
+		ctx.strokeStyle = 'white';
+		ctx.lineWidth = 8;
+		ctx.stroke();
+		enemies[id].hp -= this.damage;
+	};
+	this.fireRate = 1;
+	this.readyToShootTime = 1;
+	this.damage = 5;	
 }
+
+var towers=[];
 
 $("#game-canvas").on("mousemove", mousemove);
 $("#game-canvas").on("click", click);
@@ -194,8 +232,14 @@ function click(){
 		//蓋塔
 		if(isBuilding)
 		{
-			tower.x = cursor.x-cursor.x%32;
-			tower.y = cursor.y-cursor.y%32;
+			if(money>=15)
+			{
+				var newTower = new Tower();
+				newTower.x = cursor.x-cursor.x%32;
+				newTower.y = cursor.y-cursor.y%32;
+				towers.push(newTower);
+				money -= 15;
+			}
 		}
 		isBuilding = false; //建造完成
 	}
