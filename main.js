@@ -1,6 +1,6 @@
 var FPS = 60;
 var clock = 0;
-var hp = 10;
+var hp = 100;
 var con= true;
 var money = 15;
 var score = 0;
