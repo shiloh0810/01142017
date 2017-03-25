@@ -13,6 +13,9 @@ var rukiaImg = document.createElement("img");
 var buttonImg = document.createElement("img");
 var defenseImg = document.createElement("img");
 var crossImg = document.createElement("img");
+var goldImg = document.createElement("img");
+var silverImg = document.createElement("img");
+var bronzeImg = document.createElement("img");
 
 // 設定這個元素的要顯示的圖片
 bgImg.src = "images/map.png";
@@ -23,6 +26,9 @@ rukiaImg.src = "images/rukia.gif";
 buttonImg.src = "images/tower-btn.png";
 defenseImg.src = "images/tower.png";
 crossImg.src = "images/crosshair.png";
+goldImg.src = "images/gold.png";
+silverImg.src = "images/silver.png";
+bronzeImg.src = "images/bronze.png"
 
 // 找出網頁中的 canvas 元素
 var canvas = document.getElementById("game-canvas");
@@ -80,11 +86,25 @@ function draw(){
   }
   if(hp <= 0)
   {
+  	clearInterval(intervalID);
   	ctx.font="80px Arial";
+  	ctx.fillStyle="red";
   	ctx.fillText("Game Over", 130, 200);
   	ctx.font="50px Arial";
-  	ctx.fillText("You got "+score, 170, 250);
-  	clearInterval(intervalID);
+  	ctx.fillText("You got", 250, 250);
+  	ctx.fillText(score, 300, 300);
+  	if(score>=200)
+  	{
+  		ctx.drawImage(goldImg, 330, 300);
+  	}
+  	else if(score>=100)
+  	{
+  		ctx.drawImage(silverImg, 330, 300);
+  	}
+  	else
+  	{
+  		ctx.drawImage(bronzeImg, 330, 300);
+  	}
   } 
 }
 
