@@ -13,7 +13,6 @@ var rukiaImg = document.createElement("img");
 var buttonImg = document.createElement("img");
 var defenseImg = document.createElement("img");
 var crossImg = document.createElement("img");
-var overImg = document.createElement("img");
 
 // 設定這個元素的要顯示的圖片
 bgImg.src = "images/map.png";
@@ -24,7 +23,6 @@ rukiaImg.src = "images/rukia.gif";
 buttonImg.src = "images/tower-btn.png";
 defenseImg.src = "images/tower.png";
 crossImg.src = "images/crosshair.png";
-overImg.src = "images/game-over-png-20.png"
 
 // 找出網頁中的 canvas 元素
 var canvas = document.getElementById("game-canvas");
@@ -79,13 +77,19 @@ function draw(){
 	  ctx.fillText("Score: "+score, 10, 70);
 	  ctx.fillText("Money: "+money, 10, 100);
 	  ctx.drawImage(buttonImg,640-80,480-80,80,80);
-	  if(hp <= 0)
-	  {
-	  	ctx.drawImage(overImg, 60, 60);
-	  	finish();
-	  }
+  }
+  if(hp <= 0)
+  {
+  	ctx.font="80px Arial";
+  	ctx.fillText("Game Over", 130, 200);
+  	ctx.font="50px Arial";
+  	ctx.fillText("You got "+score, 170, 250);
+  	clearInterval(intervalID);
   } 
 }
+
+// 執行 draw 函式
+var intervalID = setInterval(draw, 1000/FPS);
 
 $("body").on("keypress", pause);
 function pause(event)
@@ -99,11 +103,6 @@ function pause(event)
 			con=true;
 		}
 	}
-}
-
-function finish()
-{
-	con=false;
 }
 
 var enemyPath=[
@@ -258,5 +257,3 @@ function isCollided(pointX, pointY, targetX, targetY, targetWidth, targetHeight)
 		return false;
 	}
 }
-// 執行 draw 函式
-setInterval(draw, 1000/FPS);
