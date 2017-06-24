@@ -42,7 +42,7 @@ function draw(){
   {
   	console.log(con)
   	clock++;
-  	if(clock%80==0)
+  	if(clock%40==0)
 	  {
 	  	var newEnemy= new Enemy();
 	  	enemies.push(newEnemy);
@@ -144,7 +144,7 @@ var pic=[
 ]
 
 function Enemy(){
-	this.fast = 80+clock/20;
+	this.fast = 100+clock/20;
 	this.x = 80;
 	this.y = 0;
 	this.speedX = 0;
